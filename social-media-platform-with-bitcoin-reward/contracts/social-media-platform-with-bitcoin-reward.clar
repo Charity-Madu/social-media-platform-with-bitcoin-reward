@@ -191,3 +191,33 @@
   )
 )
 
+;; Reward Distribution
+(define-public (distribute-rewards (content-id uint))
+  (let 
+    (
+      (content (unwrap! (map-get? content-registry content-id) ERR-CONTENT-NOT-FOUND))
+      (creator (get creator content))
+      (engagement (get engagement content))
+      (total-engagement (+ 
+        (get likes engagement) 
+        (get comments engagement) 
+        (get shares engagement)
+      ))
+      (reward (* total-engagement REWARD-MULTIPLIER))
+    )
+    
+    ;; Check if already rewarded
+    (asserts! (not (get rewards-distributed content)) ERR-ALREADY-REWARDED)
+    
+    ;; Update content reward status
+    (map-set content-registry 
+      content-id 
+      (merge content {rewards-distributed: true})
+    )
+    
+    ;; Implement Bitcoin reward transfer logic here
+    ;; This would typically involve calling an external contract or service
+    
+    (ok reward)
+  )
+)
