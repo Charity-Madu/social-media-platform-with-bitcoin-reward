@@ -221,3 +221,43 @@
     (ok reward)
   )
 )
+;; Governance Functions
+(define-public (update-platform-fee (new-fee uint))
+  (begin
+    (asserts! (is-eq tx-sender PLATFORM-OWNER) ERR-NOT-AUTHORIZED)
+    (var-set platform-fee new-fee)
+    (ok true)
+  )
+)
+
+;; Read-Only Functions
+(define-read-only (get-user-profile (user principal))
+  (map-get? user-profiles user)
+)
+
+(define-read-only (get-content (content-id uint))
+  (map-get? content-registry content-id)
+)
+
+;; New Error Constants
+(define-constant ERR-ALREADY-FOLLOWING (err u7))
+(define-constant ERR-NOT-FOLLOWING (err u8))
+(define-constant ERR-INVALID-REPORT (err u9))
+(define-constant ERR-TRANSFER-FAILED (err u10))
+
+
+;; Following Relationship Map
+(define-map user-followers 
+  {follower: principal, followed: principal} 
+  {timestamp: uint}
+)
+
+;; Content Reporting System
+(define-map content-reports 
+  {content-id: uint, reporter: principal} 
+  {
+    reason: (string-ascii 100),
+    timestamp: uint,
+    status: (string-ascii 20)
+  }
+)
